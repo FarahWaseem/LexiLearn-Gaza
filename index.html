@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 200px;
+            transition: 0.3s;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .option:hover {
+            border-color: #4a90e2;
+            transform: scale(1.05);
+        }
+
+        .option img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .option p {
+            margin: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        #output {
+            margin-top: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            text-align: left;
+            min-width: 250px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #output h3 {
+            margin: 0 0 10px 0;
+            color: #4a90e2;
+        }
+
+        #output p {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>اختر ما تفضله:</h2>
+
+    <div class="options">
+        <div class="option" onclick="getContent('food')">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500" alt="Food">
+            <p>Food</p>
+        </div>
+        <div class="option" onclick="getContent('travel')">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500" alt="Travel">
+            <p>Travel</p>
+        </div>
+        <div class="option" onclick="getContent('art')">
+            <img src="https://images.unsplash.com/photo-1503602642458-232111445657?w=500" alt="Art">
+            <p>Art</p>
+        </div>
+    </div>
+
+    <div id="output">
+
+        <h3></h3>
+        <p></p>
+    </div>
+
+
+    <script>
+        const MODEL = "gemini-1.5-flash";
+        const API_KEY = "YOUR API KEY";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+
+        async function getContent(category) {
+    const prompt = `Return only JSON in the exact format: { "title": "", "description": "" } 
+with ${category}-related information about Gaza, written in Arabic, no extra text outside JSON.`;
+
+
+
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+
+           const data = await response.json();
+
+// 1. الوصول للنص اللي فيه JSON
+let rawText = data.candidates[0].content.parts[0].text;
+
+// 2. إزالة ```json و ```
+rawText = rawText.replace(/```json|```/g, "").trim();
+
+// 3. تحويل النص إلى كائن JSON
+let parsed;
+try {
+    parsed = JSON.parse(rawText);
+} catch (e) {
+    console.error("خطأ في قراءة JSON:", e);
+}
+
+// 4. عرض العنوان والوصف
+if (parsed) {
+    document.getElementById("output").innerHTML = `
+        <h3>${parsed.title}</h3>
+        <p>${parsed.description}</p>
+    `;
+}
+        }
+    </script>
+</body>
+
+</html>
