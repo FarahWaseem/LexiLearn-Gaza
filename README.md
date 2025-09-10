@@ -16,7 +16,7 @@ LexiLearn is an AI-based English learning platform that provides structured less
 
 ## 🎓 Supervisor
 
-- Dr. Aya Al-Tayeb  – Islamic University of Gaza  
+- Eng. Aya Al-Tayeb  – Islamic University of Gaza  
 
 ---
 
